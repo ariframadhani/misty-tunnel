@@ -11,7 +11,7 @@ public class Agent : MonoBehaviour
     Vector3 movement;
     GameManager gm;
 
-    const float MAX_DISTANCE = 2.5f;
+    const float MAX_LANE_DISTANCE = 2.5f;
 
     float verticalVelocity, 
         gravity = 12f,
@@ -30,32 +30,47 @@ public class Agent : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        movement = Vector3.zero;
         if (Input.GetKeyDown(KeyCode.A))
         {
-            // move to left
+            // move to LEFT
             MoveRight(false);
             animator.SetTrigger("Left");
         }
 
         if (Input.GetKeyDown(KeyCode.D))
         {
-            // move to right
+            // move to RIGHT
             MoveRight(true);
             animator.SetTrigger("Right");
         }
 
+        // calculate where the agent should be in the future
+        // z position still same with the current position
         Vector3 targetPosition = transform.position.z * Vector3.forward;
 
         if (lane == -1)
         {
-            targetPosition += Vector3.left * MAX_DISTANCE;
+            targetPosition += Vector3.left * MAX_LANE_DISTANCE;
         }
         else if (lane == 1)
         {
-            targetPosition += Vector3.right * MAX_DISTANCE;
+            targetPosition += Vector3.right * MAX_LANE_DISTANCE;
         }
 
+        CheckingGrounded();
+
+        movement = Vector3.zero;
+
+        // x axis logic => where the agent should be - current position, then normalised by single meter on x axis * speed
+        movement.x = (targetPosition - transform.position).normalized.x * gm.agentSpeed;
+        movement.y = verticalVelocity;
+        movement.z = gm.agentSpeed;
+
+        controller.Move(movement * Time.deltaTime);
+    }
+
+    void CheckingGrounded()
+    {
         if (controller.isGrounded)
         {
             animator.SetBool("Grounded", true);
@@ -71,13 +86,6 @@ public class Agent : MonoBehaviour
         {
             verticalVelocity -= gravity * Time.deltaTime;
         }
-
-        movement.x = (targetPosition - transform.position).normalized.x * gm.agentSpeed;
-        movement.y = verticalVelocity;
-        movement.z = gm.agentSpeed;
-
-        controller.Move(movement * Time.deltaTime);
-
     }
 
     void MoveRight(bool goingRight)
