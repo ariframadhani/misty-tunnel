@@ -16,7 +16,7 @@ public class ObstacleCollide : MonoBehaviour {
         if(other.tag == "Player")
         {
             //other.transform.position = respawn.transform.position;
-            other.gameObject.SendMessage("ResetCountMovement");
+            //other.gameObject.SendMessage("ResetCountMovement");
         }
     }
 }

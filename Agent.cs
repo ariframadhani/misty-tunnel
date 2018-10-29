@@ -2,121 +2,88 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-[RequireComponent(typeof (CharacterController))]
-public class Agent : MonoBehaviour {
+[RequireComponent(typeof(CharacterController))]
+public class Agent : MonoBehaviour
+{
 
     CharacterController controller;
-    NeuronNetwork brain;
-    GameObject[] obstacles;
-    GameObject respawn;
-    Vector3 movement, startPosition, goingTo;
     Animator animator;
+    Vector3 movement;
+    GameManager gm;
 
-    float gravity = 20f,
-        transitionSpeed = 10f,
-        verticalVel = 0f,
-        jumpVel = 23f,
-        score = 0,
-        movementSpeed = 7f;
+    const float MAX_DISTANCE = 2.5f;
 
-    int movementCount;
-    float[] inputs;
+    float verticalVelocity, 
+        gravity = 12f,
+        forcejump = 12f;
 
-    bool jump;
+    int lane = 0; // -1, 0, 1
 
-	// Use this for initialization
-	void Start () {
-        brain = new NeuronNetwork(3, 6, 5);
+    // Use this for initialization
+    void Start()
+    {
         controller = GetComponent<CharacterController>();
-        obstacles = GameObject.FindGameObjectsWithTag("Obstacle");
-        respawn = GameObject.FindGameObjectWithTag("Respawn");
-        movementCount = 0;
-        score = 0;
         animator = GetComponent<Animator>();
-
-
+        gm = FindObjectOfType<GameManager>();
     }
 
     // Update is called once per frame
-    void Update ()
+    void Update()
     {
         movement = Vector3.zero;
-        startPosition = new Vector3(transform.position.x, transform.position.y, transform.position.z);
-
-        CharacterGrativity();
-        MovementController();
-        MovementTransition();
-
-        movement.y = verticalVel * Time.deltaTime;
-        //movement.z = movementSpeed;
-
-        Debug.Log(gravity);
-        Debug.Log(jumpVel);
-        controller.Move(movement * Time.deltaTime);
-	}
-
-    void MovementTransition()
-    {
-        if (movementCount <= -1)
-        {
-            movementCount = -1;
-            GoingToMovement(-2f);
-
-        }
-        else if (movementCount >= 1)
-        {
-            movementCount = 1;
-            GoingToMovement(2f);
-        }
-        else
-        {
-            movementCount = 0;
-            GoingToMovement(0f);
-        }
-    }
-
-    /**
-     * Going to movement on x axis
-     * */
-    void GoingToMovement(float x)
-    {
-        Vector3 goingTo = new Vector3(x, transform.position.y, transform.position.z);
-
-        transform.position = Vector3.Lerp(startPosition, goingTo, transitionSpeed * Time.deltaTime);
-    }
-    
-    void MovementController()
-    {
         if (Input.GetKeyDown(KeyCode.A))
         {
-            movementCount -= 1;
-        }
-        else if (Input.GetKeyDown(KeyCode.D))
-        {
-            movementCount += 1;
-        }
-        else if (Input.GetButtonDown("Jump") && controller.isGrounded)
-        {
-            verticalVel = Mathf.Pow(jumpVel, 2);
+            // move to left
+            MoveRight(false);
+            animator.SetTrigger("Left");
         }
 
-    }
-    
-    void CharacterGrativity()
-    {
+        if (Input.GetKeyDown(KeyCode.D))
+        {
+            // move to right
+            MoveRight(true);
+            animator.SetTrigger("Right");
+        }
+
+        Vector3 targetPosition = transform.position.z * Vector3.forward;
+
+        if (lane == -1)
+        {
+            targetPosition += Vector3.left * MAX_DISTANCE;
+        }
+        else if (lane == 1)
+        {
+            targetPosition += Vector3.right * MAX_DISTANCE;
+        }
+
         if (controller.isGrounded)
         {
-            verticalVel = -0.5f;
+            animator.SetBool("Grounded", true);
+            verticalVelocity = -0.1f;
+
+            if (Input.GetKeyDown(KeyCode.Space))
+            {
+                animator.SetTrigger("Jump");
+                verticalVelocity = forcejump;
+            }
         }
         else
         {
-            verticalVel -= gravity;
+            verticalVelocity -= gravity * Time.deltaTime;
         }
+
+        movement.x = (targetPosition - transform.position).normalized.x * gm.agentSpeed;
+        movement.y = verticalVelocity;
+        movement.z = gm.agentSpeed;
+
+        controller.Move(movement * Time.deltaTime);
+
     }
 
-    void ResetCountMovement()
+    void MoveRight(bool goingRight)
     {
-        movementCount = 0;
+        lane += (goingRight) ? 1 : -1;
+        lane = Mathf.Clamp(lane, -1, 1);
     }
-    
+
 }
