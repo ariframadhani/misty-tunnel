@@ -32,14 +32,14 @@ public class Agent : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.A))
         {
-            // move to LEFT
+            // MOVE TO LEFT
             MoveRight(false);
             animator.SetTrigger("Left");
         }
 
         if (Input.GetKeyDown(KeyCode.D))
         {
-            // move to RIGHT
+            // MOVE TO RIGHT
             MoveRight(true);
             animator.SetTrigger("Right");
         }
@@ -48,15 +48,19 @@ public class Agent : MonoBehaviour
         // z position still same with the current position
         Vector3 targetPosition = transform.position.z * Vector3.forward;
 
+        // if one time action, lane = 0 ( -1 + 1 )
         if (lane == -1)
         {
+            // if lane = -1 // target += -1 0 0 * 2.5 = -2.5 0 0
             targetPosition += Vector3.left * MAX_LANE_DISTANCE;
         }
         else if (lane == 1)
         {
+            // if lane = -1 // target += 1 0 0 * 2.5 = 2.5 0 0
             targetPosition += Vector3.right * MAX_LANE_DISTANCE;
         }
 
+        // ground check
         CheckingGrounded();
 
         movement = Vector3.zero;
@@ -84,6 +88,7 @@ public class Agent : MonoBehaviour
         }
         else
         {
+            // decresing each time (gravity)
             verticalVelocity -= gravity * Time.deltaTime;
         }
     }
@@ -94,4 +99,10 @@ public class Agent : MonoBehaviour
         lane = Mathf.Clamp(lane, -1, 1);
     }
 
+    void Death()
+    {
+        enabled = false;
+        animator.SetTrigger("Death");
+        gm.gameOver = true;
+    }
 }

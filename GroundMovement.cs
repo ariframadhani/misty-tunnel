@@ -10,6 +10,8 @@ public class GroundMovement : MonoBehaviour {
     Material four;
     Material five;
 
+    GameManager gm;
+
     Vector4 movement;
     Vector4 starting;
 
@@ -19,8 +21,9 @@ public class GroundMovement : MonoBehaviour {
     bool turn;
 
     void Start() {
+        gm = FindObjectOfType<GameManager>();
 
-        turn = (Random.Range(-1 ,2) > 0f);
+        turn = (Random.Range(-1 ,2) > 0f); // random turn, when game start
         transitionTime = 0.5f; // transition offset movement on materials / best fit: 0.5f / test: 10;
         maxoffset = 10f; // max offset of materials / best fit: 10f / test: 4f
         
@@ -31,7 +34,11 @@ public class GroundMovement : MonoBehaviour {
     }
 
     void Update() {
-        Movement();
+        if (!gm.gameOver)
+        {
+            Movement();
+        }
+        
     }
 
     private void OnApplicationQuit()

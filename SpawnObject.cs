@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 
@@ -51,9 +50,8 @@ public class SpawnObject : MonoBehaviour
                     }
                 }
 
-
-                //avoid start special object from starting ground and final fround
-                if (validPositionSpecial(randomChild))
+                // avoid start special object from starting ground and final fround
+                if (validPositionOnSpecialObject(randomChild))
                 {
                     while (GOSpawns[randomIndexObject].special)
                     {
@@ -71,6 +69,7 @@ public class SpawnObject : MonoBehaviour
                 if (max_spawn_special >= max_spawn)
                 {
                     max_spawn_special = max_spawn;
+
                     while (GOSpawns[randomIndexObject].special)
                     {
                         randomIndexObject = Random(0, GOSpawns.Count);
@@ -97,17 +96,14 @@ public class SpawnObject : MonoBehaviour
 
 
     // avoid start object from starting ground and final fround
-    bool validPositionSpecial( int randomChild )
+    bool validPositionOnSpecialObject( int randomChild )
     {
+        // random child should be, first three index and last three index on playground
         if(randomChild == 9 || randomChild == 10 || randomChild == 11 || 
             randomChild == 21 || randomChild == 22 || randomChild == 23)
-        {
             return true;
-        }
         else
-        {
             return false;
-        }
     }
     
 

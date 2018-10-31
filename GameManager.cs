@@ -20,9 +20,11 @@ public class GameManager : MonoBehaviour {
     
 
     bool levelMax = false;
+    public bool gameOver = false;
 
     private void Start()
     {
+        gameOver = false;
         scoreNextLevel = 15; // main leveling
 
         level = 1;
@@ -30,11 +32,15 @@ public class GameManager : MonoBehaviour {
     }
 
     private void Update()
-    {   
-        score += Time.deltaTime * level;
+    {
+        if (!gameOver)
+        {
+            score += Time.deltaTime * level;
 
-        ValidScore();
-        scoreText.text = "Score: "+ (int)score;
+            ValidScore();
+            scoreText.text = "Score: " + (int)score;
+        }
+        
     }
 
     void ValidScore()
