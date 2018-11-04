@@ -5,9 +5,11 @@ using UnityEngine;
 public class ObstacleCollide : MonoBehaviour {
 
     GameObject respawn;
+    GameManager gm;
 
 	// Use this for initialization
 	void Start () {
+        gm = FindObjectOfType<GameManager>();
         respawn = GameObject.FindGameObjectWithTag("Respawn");
 	}
 
@@ -15,8 +17,8 @@ public class ObstacleCollide : MonoBehaviour {
     {
         if(other.tag == "Player")
         {
-            //other.transform.position = respawn.transform.position;
             other.gameObject.SendMessage("Death");
         }
     }
+
 }

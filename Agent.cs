@@ -17,7 +17,7 @@ public class Agent : MonoBehaviour
         gravity = 12f,
         forcejump = 12f;
 
-    int lane = 0; // -1, 0, 1
+    int availableLane = 0; // -1, 0, 1
 
     // Use this for initialization
     void Start()
@@ -49,12 +49,12 @@ public class Agent : MonoBehaviour
         Vector3 targetPosition = transform.position.z * Vector3.forward;
 
         // if one time action, lane = 0 ( -1 + 1 )
-        if (lane == -1)
+        if (availableLane == -1)
         {
             // if lane = -1 // target += -1 0 0 * 2.5 = -2.5 0 0
             targetPosition += Vector3.left * MAX_LANE_DISTANCE;
         }
-        else if (lane == 1)
+        else if (availableLane == 1)
         {
             // if lane = -1 // target += 1 0 0 * 2.5 = 2.5 0 0
             targetPosition += Vector3.right * MAX_LANE_DISTANCE;
@@ -95,14 +95,21 @@ public class Agent : MonoBehaviour
 
     void MoveRight(bool goingRight)
     {
-        lane += (goingRight) ? 1 : -1;
-        lane = Mathf.Clamp(lane, -1, 1);
+        availableLane += (goingRight) ? 1 : -1;
+        availableLane = Mathf.Clamp(availableLane, -1, 1);
     }
 
     void Death()
     {
-        enabled = false;
-        animator.SetTrigger("Death");
-        gm.gameOver = true;
+        enabled = false; // stop self script ( movement )
+        animator.SetTrigger("Death"); // triggering death animation
+        gm.gameOver = true; // stopping running time on score, level, etc.
+
+        Invoke("RestartLevel", 2f); // restart level on game manager triggering "this.RestartLevel"
+    }
+
+    void RestartLevel()
+    {
+        gm.RestartGame();
     }
 }
